@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
 from app.routers import clients, suppliers, products, inventories, purchase_invoices, purchase_products, sale_invoices, sale_products, accounts_receivable, accounts_payable
 from app.routers import export_csv
+from app.routers import reports
 
 app = FastAPI(title="Sistema de Gestão Comercial")
 
@@ -32,6 +33,9 @@ app.include_router(accounts_payable.router, prefix="/accounts_payable", tags=["A
 
 # Relatórios CSV
 app.include_router(export_csv.router, tags=["Export"])
+
+# Relatórios PDF
+app.include_router(reports.router, tags=["Reports"])
 
 @app.get("/")
 def read_root():
