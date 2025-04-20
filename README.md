@@ -18,7 +18,7 @@ Este é o backend de um sistema de gestão comercial, desenvolvido em Python com
 
 ### 1. Clone o repositório
 
-```bash
+bash
 git clone https://github.com/seu-usuario/gestao-comercial.git
 cd gestao-comercial
 
