@@ -17,42 +17,34 @@ Documentação automática via Swagger.
 ---
 
 ### 1. Clone o repositório
-
 ```
 git clone https://github.com/travassosluiz/projeto_estoque_gpt.git
 cd projeto_estoque_gpt
 ```
 
 ### 2. Crie e ative um ambiente virtual
-
-
 ```
 python3 -m venv venv
 source venv/bin/activate
 ```
 
 ### 3. Instale as dependências
-
-
 ```
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
 ### 4. Instale e configure o MariaDB
-
 ```
 apt install mariadb-server -y
 ```
 
 Acesse o MariaDB e crie o banco de dados e o usuário:
-
 ```
 mysql -u root
 ```
 
 -- No prompt do MariaDB:
-
 ```
 CREATE DATABASE gestao_comercial;
 CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin123';
@@ -62,9 +54,7 @@ EXIT;
 ```
 
 ### 5. Crie o arquivo .env
-
-Na raiz do projeto, crie um arquivo chamado .env com o seguinte conteúdo:
-
+Na raiz do projeto, crie um arquivo chamado `.env` com o seguinte conteúdo:
 ```
 DB_USER=admin
 DB_PASSWORD=admin123
@@ -74,7 +64,6 @@ DB_NAME=gestao_comercial
 ```
 
 ### 6. Execute o projeto
-
 ```
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
@@ -82,9 +71,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 ---
 
 ## 🔍 Acesse a documentação
-
 Abra no navegador:
-
 ```
 http://[IP_DO_CONTAINER]:8000/docs
 Substitua [IP_DO_CONTAINER] pelo IP da sua máquina LXC (ex: 192.168.1.50).
@@ -119,4 +106,51 @@ app/
 ├── routers/               # Rotas da API
 ├── schemas/               # Schemas Pydantic
 ├── utils/                 # Exportação CSV e geração de PDF
+```
+
+---
+
+## 🛠️ Execução como Serviço (Systemd)
+
+Para rodar o backend automaticamente como serviço no Debian:
+
+### Arquivo: `/etc/systemd/system/gestao-comercial.service`
+```ini
+[Unit]
+Description=Backend Sistema de Gestão Comercial
+After=network.target mariadb.service
+
+[Service]
+User=root
+WorkingDirectory=/root/projeto_estoque_gpt
+ExecStart=/root/projeto_estoque_gpt/start.sh
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
+```
+
+> Certifique-se de que o script `start.sh` está com permissão de execução:
+```bash
+chmod +x start.sh
+```
+
+### Comandos úteis:
+```bash
+# Ativar na inicialização
+systemctl enable gestao-comercial.service
+
+# Iniciar
+systemctl start gestao-comercial.service
+
+# Parar
+systemctl stop gestao-comercial.service
+
+# Reiniciar (após alterações)
+systemctl restart gestao-comercial.service
+
+# Ver status
+systemctl status gestao-comercial.service
 ```
