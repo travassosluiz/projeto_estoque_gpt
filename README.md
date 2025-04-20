@@ -1,7 +1,7 @@
-#📦 Sistema de Gestão Comercial
+# 📦 Sistema de Gestão Comercial
 Este é o backend de um sistema de gestão comercial, desenvolvido em Python com FastAPI, SQLAlchemy e MariaDB (ou MySQL).
 
-##✅ Funcionalidades
+## ✅ Funcionalidades
 CRUD completo para clientes, fornecedores, produtos, estoque, compras, vendas, contas a pagar e a receber.
 
 Atualização automática de estoque.
@@ -12,23 +12,23 @@ Geração de relatórios financeiros em PDF.
 
 Documentação automática via Swagger.
 
-##🚀 Instalação (em Container LXC Debian)
-###1. Clone o repositório
+## 🚀 Instalação (em Container LXC Debian)
+### 1. Clone o repositório
 bash
 Copiar
 git clone https://github.com/travassosluiz/projeto_estoque_gpt.git
 cd projeto_estoque_gpt
-###2. Crie e ative um ambiente virtual
+### 2. Crie e ative um ambiente virtual
 bash
 Copiar
 python3 -m venv venv
 source venv/bin/activate
-###3. Instale as dependências
+### 3. Instale as dependências
 bash
 Copiar
 pip install --upgrade pip
 pip install -r requirements.txt
-###4. Instale e configure o MariaDB
+### 4. Instale e configure o MariaDB
 bash
 Copiar
 apt install mariadb-server -y
@@ -44,7 +44,7 @@ CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin123';
 GRANT ALL PRIVILEGES ON gestao_comercial.* TO 'admin'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
-###5. Crie o arquivo .env
+### 5. Crie o arquivo .env
 Na raiz do projeto, crie um arquivo chamado .env com o seguinte conteúdo:
 
 env
@@ -54,11 +54,11 @@ DB_PASSWORD=admin123
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=gestao_comercial
-###6. Execute o projeto
+### 6. Execute o projeto
 bash
 Copiar
 uvicorn app.main:app --host 0.0.0.0 --port 8000
-##🔍 Acesse a documentação
+## 🔍 Acesse a documentação
 Abra no navegador:
 
 arduino
@@ -66,7 +66,7 @@ Copiar
 http://[IP_DO_CONTAINER]:8000/docs
 Substitua [IP_DO_CONTAINER] pelo IP da sua máquina LXC (ex: 192.168.1.50).
 
-##📊 Relatórios disponíveis
+## 📊 Relatórios disponíveis
 Situação financeira do cliente (PDF):
 /reports/client-financial/{client_id}
 
@@ -77,7 +77,7 @@ Exportação de dados em CSV:
 /export/csv/{entidade}
 Exemplo: /export/csv/clients, /export/csv/products
 
-##📁 Estrutura do Projeto
+## 📁 Estrutura do Projeto
 bash
 Copiar
 app/
