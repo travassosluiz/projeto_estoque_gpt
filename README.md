@@ -78,8 +78,7 @@ Exportação de dados em CSV:
 Exemplo: /export/csv/clients, /export/csv/products
 
 ## 📁 Estrutura do Projeto
-bash
-Copiar
+'''
 app/
 ├── main.py                # Ponto de entrada FastAPI
 ├── database.py            # Conexão com o banco
@@ -87,3 +86,4 @@ app/
 ├── routers/               # Rotas da API
 ├── schemas/               # Schemas Pydantic
 ├── utils/                 # Exportação CSV e geração de PDF
+'''
