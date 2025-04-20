@@ -50,19 +50,29 @@ uvicorn main:app --reload
 
 http://localhost:8000/docs
 
-📊 Relatórios
+---
+
+## 📊 Relatórios
 PDF Cliente: /reports/client-financial/{client_id}
 
 Resumo Financeiro: /reports/accounts-summary
 
 CSV: /export/csv/{entidade} (ex: clients, products...)
 
-📌 Organização do Projeto
+---
+
+## 📌 Organização do Projeto
 
 app/
+
 ├── database.py
+
 ├── models/
+
 ├── routers/
+
 ├── schemas/
+
 ├── utils/
+
 ├── main.py
