@@ -51,10 +51,15 @@ Copiar
 mysql -u root
 
 -- No prompt do MariaDB:
+
 CREATE DATABASE gestao_comercial;
+
 CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin123';
+
 GRANT ALL PRIVILEGES ON gestao_comercial.* TO 'admin'@'localhost';
+
 FLUSH PRIVILEGES;
+
 EXIT;
 
 
@@ -62,8 +67,6 @@ EXIT;
 
 Na raiz do projeto, crie um arquivo chamado .env com o seguinte conteúdo:
 
-env
-Copiar
 DB_USER=admin
 DB_PASSWORD=admin123
 DB_HOST=localhost
