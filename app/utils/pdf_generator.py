@@ -58,3 +58,61 @@ def generate_pdf(client_name, parcels):
     return StreamingResponse(buffer, media_type="application/pdf", headers={
         "Content-Disposition": f"inline; filename=cliente_{client_name}_financeiro.pdf"
     })
+
+# app/utils/pdf_generator.py (complemento)
+
+def generate_accounts_summary_pdf(receivables, payables):
+    pdf = FPDF()
+    pdf.add_page()
+
+    def draw_section(title, data, headers, totals):
+        pdf.set_font("Arial", "B", 12)
+        pdf.cell(0, 10, title, ln=True)
+        pdf.set_font("Arial", "B", 10)
+        for header in headers:
+            pdf.cell(48, 10, header, 1)
+        pdf.ln()
+        pdf.set_font("Arial", "", 10)
+        for row in data:
+            for col in row:
+                pdf.cell(48, 10, str(col), 1)
+            pdf.ln()
+        pdf.ln(2)
+        pdf.set_font("Arial", "B", 11)
+        pdf.cell(0, 10, f"Total em aberto: R$ {totals['open']:.2f}", ln=True)
+        pdf.cell(0, 10, f"Total quitado: R$ {totals['paid']:.2f}", ln=True)
+        pdf.ln(10)
+
+    # Recebíveis
+    rec_data = []
+    rec_totals = {"open": 0, "paid": 0}
+    for r in receivables:
+        status = "Quitado" if r.paid else "Em aberto"
+        rec_data.append([r.client.name, r.due_date.strftime("%d/%m/%Y"), f"R$ {r.amount:.2f}", status])
+        if r.paid:
+            rec_totals["paid"] += r.amount
+        else:
+            rec_totals["open"] += r.amount
+
+    draw_section("Contas a Receber", rec_data, ["Cliente", "Vencimento", "Valor", "Status"], rec_totals)
+
+    # Pagáveis
+    pay_data = []
+    pay_totals = {"open": 0, "paid": 0}
+    for p in payables:
+        status = "Quitado" if p.paid else "Em aberto"
+        pay_data.append([p.supplier.name, p.due_date.strftime("%d/%m/%Y"), f"R$ {p.amount:.2f}", status])
+        if p.paid:
+            pay_totals["paid"] += p.amount
+        else:
+            pay_totals["open"] += p.amount
+
+    draw_section("Contas a Pagar", pay_data, ["Fornecedor", "Vencimento", "Valor", "Status"], pay_totals)
+
+    buffer = BytesIO()
+    pdf.output(buffer)
+    buffer.seek(0)
+
+    return StreamingResponse(buffer, media_type="application/pdf", headers={
+        "Content-Disposition": "inline; filename=relatorio_financeiro.pdf"
+    })
