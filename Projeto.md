@@ -8,7 +8,7 @@ Sistema backend completo para gestão comercial, com funcionalidades de controle
 - Estoque
 - Compras
 - Vendas
-- Contas a pagar e receber
+- Contas a pagar e a receber
 - Exportação em CSV
 - Relatórios financeiros em PDF
 
@@ -17,13 +17,13 @@ Desenvolvido em **Python** utilizando **FastAPI**, **SQLAlchemy** e banco de dad
 ---
 
 ## 🧰 Tecnologias e Ferramentas
-- **FastAPI**: framework principal da API REST
-- **SQLAlchemy**: ORM para integração com o banco
-- **MariaDB**: banco de dados relacional
-- **Pydantic**: validações de dados
-- **Uvicorn**: servidor ASGI para execução local
-- **FPDF2**: geração de relatórios em PDF
-- **dotenv**: para leitura de variáveis de ambiente
+- **FastAPI**: framework principal da API REST.
+- **SQLAlchemy**: ORM para integração com o banco de dados.
+- **MariaDB**: banco de dados relacional.
+- **Pydantic**: validação de dados e definição de schemas.
+- **Uvicorn**: servidor ASGI para execução local.
+- **FPDF2**: geração de relatórios em PDF.
+- **python-dotenv**: leitura de variáveis de ambiente do `.env`.
 
 ---
 
@@ -41,6 +41,7 @@ app/
 ---
 
 ## 🔌 Conexão com o Banco (.env)
+Exemplo de conteúdo do arquivo `.env`:
 ```env
 DB_USER=admin
 DB_PASSWORD=admin123
@@ -51,69 +52,73 @@ DB_NAME=gestao_comercial
 
 ---
 
-## 🔧 Entidades e Regras de Negócio
+## 🔧 Entidades e Lógicas Implementadas
 
 ### Clientes / Fornecedores
-- Campos básicos: nome, documento, telefone, email, status
-- Validação de e-mail via `EmailStr`
+- Campos: nome, documento, telefone, email, status.
+- Validação de email com `EmailStr`.
 
 ### Produtos
-- SKU único, preço de venda, custo, status
+- SKU único, nome, preço de venda, custo, status (ativo/inativo).
 
 ### Estoque (Inventory)
-- Atualizado automaticamente:
-  - + Ao inserir itens de **compra**
-  - - Ao inserir itens de **venda**
+- Atualização automática:
+  - `+` ao registrar **itens de compra**.
+  - `−` ao registrar **itens de venda**.
 
 ### Compras / Vendas
-- Notas (invoices) + Itens
-- Controle de `purchase_items` e `sale_items`
-- Validação de estoque antes de vender
+- Cada operação possui nota (invoice) e lista de itens.
+- Controle via `purchase_items` e `sale_items`.
+- **Validação de estoque antes de vender** (evita saldo negativo).
 
 ### Contas a Pagar / Receber
-- Vencimento, valor, status `pago` / `em aberto`
+- Campos: valor, vencimento, status (`pago` / `em aberto`).
+- (⚠️ Regras como juros, multas e atrasos ainda não implementadas.)
 
 ---
 
-## 📤 Funcionalidades de Exportação
+## 📤 Exportação de Dados
 
-### CSV (por entidade)
+### CSV
 - Endpoint: `/export/csv/{entidade}`
-- Exemplo: `/export/csv/clients`
+- Exemplo: `/export/csv/clients`, `/export/csv/products`
 
-### Relatórios em PDF
-- Situação financeira do cliente: `/reports/client-financial/{client_id}`
-- Visão geral contas: `/reports/accounts-summary`
-
----
-
-## 🔍 Documentação Automática
-- Disponível via Swagger UI em:  
-`http://[IP_DO_CONTAINER]:8000/docs`
+### Relatórios PDF
+- Situação financeira do cliente:
+  - `/reports/client-financial/{client_id}`
+- Resumo geral de contas:
+  - `/reports/accounts-summary`
 
 ---
 
-## 📦 Execução
+## 📚 Documentação Automática
+Disponível via Swagger UI:
+```
+http://[IP_DO_CONTAINER]:8000/docs
+```
+> Substituir `[IP_DO_CONTAINER]` pelo IP real do container LXC.
 
+---
+
+## 🚀 Execução Local
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-> Certifique-se de estar na raiz do projeto, com ambiente virtual ativado, e banco em execução.
+> Certifique-se de estar na raiz do projeto, com ambiente virtual ativado e o banco de dados MariaDB em execução.
 
 ---
 
-## 🧭 Pendências Futuras / Extras
+## 🔭 Melhorias Futuras / Funcionalidades Planejadas
 - [ ] Autenticação de usuário (JWT / OAuth2)
-- [ ] Deploy com Docker
-- [ ] Systemd ou PM2 para execução automática
-- [ ] Nginx com HTTPS
-- [ ] Interface frontend integrada (React/Vue)
+- [x] Execução como serviço (via Systemd)
+- [ ] Nginx com HTTPS reverso
+- [ ] Interface frontend integrada (React, Vue ou similar)
+- [ ] Regras financeiras mais robustas (juros, multa, etc.)
+- [ ] Histórico de movimentações de estoque
 
 ---
 
 ## 👨‍💻 Autor
-**Henrique Travassos**
-
+**Henrique Travassos**  
 Repositório: [github.com/travassosluiz/projeto_estoque_gpt](https://github.com/travassosluiz/projeto_estoque_gpt)
-
