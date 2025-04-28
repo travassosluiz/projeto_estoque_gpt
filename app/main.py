@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from app.database import engine, Base
 from app.routers import clients, suppliers, products, inventories, purchase_invoices, purchase_items, sales_invoices, sale_items, accounts_receivable, accounts_payable
 from app.routers import export_csv
@@ -37,6 +39,15 @@ app.include_router(export_csv.router, tags=["Export"])
 # Relatórios PDF
 app.include_router(reports.router, tags=["Reports"])
 
-@app.get("/")
-def read_root():
-    return {"message": "Sistema de Gestão Comercial em execução"}
+# Configuração de arquivos estáticos
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Rota para o index.html
+@app.get("/", response_class=FileResponse)
+async def read_index():
+#    return "static/index.html"
+    return FileResponse(path="static/index.html", media_type="text/html")
+
+#@app.get("/")
+#def read_root():
+#    return {"message": "Sistema de Gestão Comercial em execução"}

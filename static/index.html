@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Sistema de Gestão</h1>
+
+    <!-- Seções -->
+    <h2 onclick="toggleSection('clientes')">👥 Clientes</h2>
+    <div id="clientes" class="section">
+        <button onclick="openModal('cliente')">+ Novo Cliente</button>
+        <button onclick="refreshSection('clientes')">🔄 Atualizar</button>
+        <div id="feedback-cliente" class="feedback"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Documento</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Ativo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="body-cliente"></tbody>
+        </table>
+    </div>
+
+    <h2 onclick="toggleSection('produtos')">📦 Produtos</h2>
+    <div id="produtos" class="section">
+        <button onclick="openModal('produto')">+ Novo Produto</button>
+        <button onclick="refreshSection('produtos')">🔄 Atualizar</button>
+        <div id="feedback-produto" class="feedback"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                    <th>Preço</th>
+                    <th>SKU</th>
+                    <th>Ativo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="body-produto"></tbody>
+        </table>
+    </div>
+
+    <h2 onclick="toggleSection('fornecedores')">🚚 Fornecedores</h2>
+    <div id="fornecedores" class="section">
+        <button onclick="openModal('fornecedor')">+ Novo Fornecedor</button>
+        <button onclick="refreshSection('fornecedores')">🔄 Atualizar</button>
+        <div id="feedback-fornecedor" class="feedback"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Documento</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Ativo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="body-fornecedor"></tbody>
+        </table>
+    </div>
+
+    <h2 onclick="toggleSection('inventario')">📋 Inventário</h2>
+    <div id="inventario" class="section">
+        <button onclick="refreshSection('inventario')">🔄 Atualizar</button>
+        <div id="feedback-inventario" class="feedback"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Produto</th>
+                    <th>SKU</th>
+                    <th>Preço</th>
+                    <th>Quantidade</th>
+                </tr>
+            </thead>
+            <tbody id="body-inventario"></tbody>
+        </table>
+    </div>
+
+    <h2 onclick="toggleSection('notasCompra')">🧾 Notas de Compra</h2>
+    <div id="notasCompra" class="section">
+        <button onclick="refreshSection('notasCompra')">🔄 Atualizar</button>
+        <div id="feedback-nota" class="feedback"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fornecedor</th>
+                    <th>Data</th>
+                    <th>Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="body-nota"></tbody>
+        </table>
+    </div>
+
+    <!-- Modais CRUD -->
+    <div id="modal-entidade" class="modal">
+        <div class="modal-content">
+            <h3 id="titulo-modal"></h3>
+            <div id="form-fields"></div>
+            <button onclick="saveEntity()">Salvar</button>
+            <button onclick="closeModal()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal Confirmação -->
+    <div id="modal-confirm" class="modal">
+        <div class="modal-content">
+            <h3>Confirma exclusão?</h3>
+            <button onclick="confirmDelete()">Sim</button>
+            <button onclick="closeConfirm()">Não</button>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
