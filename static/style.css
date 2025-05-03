@@ -1,4 +1,4 @@
-/* style.css */
+/* /static/style.css */
 
 body {
     background-color: #1e1e1e;
@@ -90,8 +90,10 @@ th {
     background: #2a2a2a;
     padding: 20px;
     border-radius: 10px;
-    width: 400px;
+    width: 600px;       /* de 400px → 600px */
+    max-width: 90vw;    /* responsivo em telas pequenas */
 }
+
 
 input, select {
     width: 100%;
@@ -119,3 +121,85 @@ input, select {
     background: #552a2a;
     color: #f2d8d8;
 }
+/* Formulário de Nota de Compra */
+.nota-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+/* Cabeçalho da Nota de Compra */
+.nota-header {
+    display: grid;
+    grid-template-columns: 2.5fr 1.5fr 1fr; /* dá mais espaço ao fornecedor */
+    gap: 12px;                                /* aumenta o espaçamento */
+    align-items: center;                      /* alinha verticalmente */
+    margin-bottom: 12px;                      /* separa do container de itens */
+  }
+  
+  /* Faz cada campo preencher toda sua célula */
+  .nota-header select,
+  .nota-header input {
+    width: 100%;
+    padding: 8px 10px;     /* acrescenta “acolchoamento” interno */
+    box-sizing: border-box; /* inclui padding no cálculo de largura */
+    border-radius: 4px;
+    border: 1px solid #555;
+    background: #1e1e1e;
+    color: #e0e0e0;
+  }
+  
+  /* Opcional: deixa a tabela de itens com layout fixo e inputs bem dimensionados */
+  .itens-container table {
+    table-layout: fixed;       /* distribui colunas uniformemente */
+    width: 100%;
+  }
+  .itens-container table td input {
+    width: 100%;
+    padding: 6px;
+    box-sizing: border-box;
+  }
+  
+  .itens-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #444;
+    border-radius: 6px;
+  }
+  
+  .itens-container table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .itens-container thead th {
+    position: sticky;
+    top: 0;
+    background: #2a2a2a;
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #555;
+  }
+  
+  .itens-container tbody td {
+    padding: 6px;
+    border-bottom: 1px solid #555;
+  }
+  
+  .nota-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  
+  .field-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .field-group label {
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+    color: #ccc;
+  }
+  

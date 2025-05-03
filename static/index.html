@@ -93,6 +93,7 @@
 
     <h2 onclick="toggleSection('notasCompra')">🧾 Notas de Compra</h2>
     <div id="notasCompra" class="section">
+        <button onclick="openNotaCompraModal()">+ Nova Nota de Compra</button>
         <button onclick="refreshSection('notasCompra')">🔄 Atualizar</button>
         <div id="feedback-nota" class="feedback"></div>
         <table>
@@ -102,7 +103,7 @@
                     <th>Fornecedor</th>
                     <th>Data</th>
                     <th>Total</th>
-                    <th></th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody id="body-nota"></tbody>
@@ -114,7 +115,7 @@
         <div class="modal-content">
             <h3 id="titulo-modal"></h3>
             <div id="form-fields"></div>
-            <button onclick="saveEntity()">Salvar</button>
+            <button onclick="currentEntity === 'notaCompra' ? saveNotaCompra() : saveEntity()">Salvar</button>
             <button onclick="closeModal()">Cancelar</button>
         </div>
     </div>

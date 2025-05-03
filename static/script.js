@@ -1,4 +1,4 @@
-// script.js
+// /static/script.js
 
 const API_BASE = "http://192.168.18.109:8000";
 const PAGE_SIZE = 20;
@@ -199,53 +199,94 @@ async function loadInventario() {
 
 async function loadNotas() {
     const body = document.getElementById('body-nota');
-    const fb = document.getElementById('feedback-nota'); fb.style.display = 'none';
-    body.innerHTML = '<tr><td colspan="5">Carregando...</td></tr>';
+    const fb   = document.getElementById('feedback-nota');
+    fb.style.display = 'none';
+    body.innerHTML   = '<tr><td colspan="5">Carregando...</td></tr>';
+
     try {
+        // Carrega fornecedores em cache
         if (!cacheSuppliers) {
-            cacheSuppliers = [];
             const resS = await fetch(`${API_BASE}/suppliers?skip=0&limit=${PAGE_SIZE*10}`);
             cacheSuppliers = await resS.json();
         }
+        // Carrega itens de compra em cache
         if (!cachePurchaseItems) {
             const resIt = await fetch(`${API_BASE}/purchase_items`);
             cachePurchaseItems = await resIt.json();
         }
-        const res = await fetch(`${API_BASE}/purchase_invoices`);
+        // Busca todas as notas
+        const res   = await fetch(`${API_BASE}/purchase_invoices`);
         const notas = await res.json();
+
         body.innerHTML = '';
         notas.forEach(n => {
-            const sup = cacheSuppliers.find(s => s.id === n.supplier_id) || {};
-            body.innerHTML += `<tr>` +
-                `<td>${n.id}</td>` +
-                `<td>${sup.name||'?'}</td>` +
-                `<td>${new Date(n.date).toLocaleDateString('pt-BR')}</td>` +
-                `<td>R$ ${n.total.toFixed(2)}</td>` +
-                `<td><button onclick="toggleNota(${n.id})">🔍</button></td>` +
-                `</tr>` +
-                `<tr id="nota-${n.id}" class="hidden"><td colspan="5"><div id="itens-${n.id}">Carregando itens...</div></td></tr>`;
+            const sup     = cacheSuppliers.find(s => s.id === n.supplier_id) || {};
+            // Proteção contra campos indefinidos
+            const rawDate = n.invoice_date ?? n.date;
+            const date    = rawDate ? new Date(rawDate).toLocaleDateString('pt-BR') : '–';
+            const rawTot  = n.total_amount ?? n.total;
+            const total   = (typeof rawTot === 'number' ? rawTot : parseFloat(rawTot) || 0).toFixed(2);
+
+            body.innerHTML += `
+                <tr>
+                    <td>${n.id}</td>
+                    <td>${sup.name || '?'}</td>
+                    <td>${date}</td>
+                    <td>R$ ${total}</td>
+                    <td>
+                        <button onclick="toggleNota(${n.id})">🔍</button>
+                        <button onclick="openNotaCompraModal(${n.id})">✏️</button>
+                    </td>
+                </tr>
+                <tr id="nota-${n.id}" class="hidden">
+                    <td colspan="5">
+                        <div id="itens-${n.id}">Carregando itens...</div>
+                    </td>
+                </tr>`;
         });
     } catch (e) {
-        fb.textContent = 'Erro nas notas'; fb.className = 'feedback error'; fb.style.display = 'block';
+        console.error('Erro em loadNotas():', e);
+        fb.textContent = 'Erro ao carregar notas';
+        fb.className   = 'feedback error';
+        fb.style.display = 'block';
     }
 }
 
 async function toggleNota(id) {
     const row = document.getElementById(`nota-${id}`);
     if (row.classList.contains('hidden')) {
+        // primeiro carregamos products no cache, se ainda não tiver sido feito
+        if (!cacheProducts) {
+            const resP = await fetch(`${API_BASE}/products?skip=0&limit=${PAGE_SIZE*10}`);
+            cacheProducts = await resP.json();
+        }
+
         row.classList.remove('hidden');
-        const div = document.getElementById(`itens-${id}`);
+        const div   = document.getElementById(`itens-${id}`);
         const itens = cachePurchaseItems.filter(pi => pi.purchase_invoice_id === id);
-        div.innerHTML = "<table style='width:100%'><thead><tr><th>Produto</th><th>Qtd</th><th>Preço Uni.</th></tr></thead><tbody>" +
-            itens.map(i => {
-                const p = cacheProducts.find(x => x.id === i.product_id) || {};
-                return `<tr><td>${p.name||'?'}<\/td><td>${i.quantity}<\/td><td>R$ ${i.unit_price.toFixed(2)}<\/td><\/tr>`;
-            }).join('') +
-            "</tbody></table>";
+
+        div.innerHTML = `
+            <table style="width:100%">
+                <thead>
+                    <tr><th>Produto</th><th>Qtd</th><th>Preço Uni.</th></tr>
+                </thead>
+                <tbody>
+                    ${itens.map(i => {
+                        // agora cacheProducts já está definido
+                        const p = cacheProducts.find(x => x.id === i.product_id) || {};
+                        return `<tr>
+                            <td>${p.name||'?'}</td>
+                            <td>${i.quantity}</td>
+                            <td>R$ ${i.unit_price.toFixed(2)}</td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>`;
     } else {
         row.classList.add('hidden');
     }
 }
+
 
 // ---------- CRUD Modais e Ações ----------
 function openModal(entity, id = null) {
@@ -367,5 +408,147 @@ async function confirmDelete() {
     } catch (e) {
         const fb = document.getElementById(`feedback-${deleteEntity}`);
         fb.textContent = 'Erro ao excluir'; fb.className = 'feedback error'; fb.style.display = 'block';
+    }
+}
+
+async function openNotaCompraModal(id = null) {
+    editId = id;
+    const modal = document.getElementById('modal-entidade');
+    const title = document.getElementById('titulo-modal');
+    const form  = document.getElementById('form-fields');
+  
+    // Título
+    title.textContent = id ? 'Editar Nota de Compra' : 'Nova Nota de Compra';
+  
+    // HTML estrutural (já com tbody vazio para os <tr>)
+    form.innerHTML = `
+    <div class="nota-form">
+      <div class="nota-header">
+        <div class="field-group">
+          <label for="nota-supplier">Fornecedor</label>
+          <select id="nota-supplier">
+            ${cacheSuppliers.map(s =>
+              `<option value="${s.id}">${s.name}</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div class="field-group">
+          <label for="nota-date">Data</label>
+          <input type="date" id="nota-date">
+        </div>
+        <div class="field-group">
+          <label for="nota-total">Total (R$)</label>
+          <input type="number" step="0.01" id="nota-total" placeholder="0.00">
+        </div>
+      </div>
+  
+      <div class="itens-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Produto</th><th>Qtd</th><th>Preço Uni.</th><th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="nota-itens"></tbody>
+        </table>
+      </div>
+  
+      <div class="nota-actions">
+        <button type="button" onclick="addItemNota()">+ Item</button>
+        <button type="button" onclick="saveNotaCompra()">Salvar</button>
+      </div>
+    </div>`;
+  
+  
+    if (id) {
+      // 1) Garante cache de itens
+      if (!cachePurchaseItems) {
+        const resIt = await fetch(`${API_BASE}/purchase_items`);
+        cachePurchaseItems = await resIt.json();
+      }
+      // 2) Busca a nota exata
+      const resp = await fetch(`${API_BASE}/purchase_invoices/${id}`);
+      const n    = await resp.json();
+  
+      // 3) Preenche os campos de header
+      const rawDate = n.invoice_date ?? n.date;
+      form.querySelector('#nota-date').value = rawDate ? rawDate.split('T')[0] : '';
+      form.querySelector('#nota-supplier').value = n.supplier_id;
+      form.querySelector('#nota-total').value    = (n.total_amount ?? n.total) || 0;
+  
+      // 4) Preenche a lista de itens
+      const itens = cachePurchaseItems.filter(pi => pi.purchase_invoice_id === id);
+      itens.forEach(i => {
+        addItemNota(i.product_id, i.quantity, i.unit_price);
+      });
+    }
+  
+    modal.style.display = 'flex';
+  }
+  
+
+function addItemNota(prodId = '', qtd = '', preco = '') {
+    const tbody = document.getElementById('nota-itens');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <select class="item-produto">
+          ${cacheProducts.map(p =>
+            `<option value="${p.id}" ${p.id==prodId?'selected':''}>${p.name}</option>`
+          ).join('')}
+        </select>
+      </td>
+      <td><input type="number" class="item-qtd" step="1" value="${qtd}"></td>
+      <td><input type="number" class="item-preco" step="0.01" value="${preco}"></td>
+      <td>
+        <button type="button" onclick="removeItemNota(event)">🗑️</button>
+      </td>`;
+    tbody.appendChild(tr);
+  }
+  
+  // Função para remover a linha
+  function removeItemNota(ev) {
+    const tr = ev.target.closest('tr');
+    tr.remove();
+  }
+  
+
+async function saveNotaCompra() {
+    const supplier_id = parseInt(document.getElementById('nota-supplier').value);
+    const invoice_date = document.getElementById('nota-date').value;
+    const total_amount = parseFloat(document.getElementById('nota-total').value);
+    const method = editId ? 'PUT' : 'POST';
+    const notaUrl = `${API_BASE}/purchase_invoices/${editId || ''}`;
+
+    try {
+        const res = await fetch(notaUrl, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ supplier_id, invoice_date, total_amount })
+        });
+        const nota = await res.json();
+        const notaId = nota.id || editId;
+
+        const items = [...document.querySelectorAll('#nota-itens .item')].map(div => {
+            return {
+                invoice_id: notaId,
+                product_id: parseInt(div.querySelector('.item-produto').value),
+                quantity: parseInt(div.querySelector('.item-qtd').value),
+                unit_price: parseFloat(div.querySelector('.item-preco').value)
+            }
+        });
+
+        for (let item of items) {
+            await fetch(`${API_BASE}/purchase_items/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(item)
+            });
+        }
+
+        closeModal();
+        refreshSection('notasCompra');
+    } catch (e) {
+        alert('Erro ao salvar nota');
     }
 }
